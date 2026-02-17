@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>세뱃돈 가챠 🧧</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold-light: #FFF0A0;
+    --gold-dark: #B8860B;
+    --gold-glow: #FFA500;
+    --red: #CC0000;
+    --red-dark: #8B0000;
+    --bg: #0D0500;
+    --bg2: #1a0800;
+    --white: #FFF8F0;
+    --gray: #888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Noto Serif KR', serif;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  /* ─── 배경 패턴 ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(180,100,0,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 80%, rgba(180,50,0,0.14) 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 50%, rgba(100,30,0,0.1) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* 회전하는 배경 구름/패턴 */
+  .bg-ornament {
+    position: fixed;
+    font-size: 120px;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+    animation: slowspin 40s linear infinite;
+    user-select: none;
+  }
+  .bg-ornament:nth-child(1) { top: -40px; left: -40px; }
+  .bg-ornament:nth-child(2) { bottom: -40px; right: -40px; animation-direction: reverse; animation-duration: 50s; }
+  .bg-ornament:nth-child(3) { top: 40%; left: 50%; transform: translate(-50%,-50%); font-size: 200px; opacity: 0.025; animation-duration: 70s; }
+  @keyframes slowspin { to { transform: rotate(360deg); } }
+
+  /* ─── 메인 레이아웃 ─── */
+  #app {
+    position: relative; z-index: 1;
+    width: 100vw; height: 100dvh;
+    display: flex; flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* ─── 헤더 ─── */
+  #header {
+    width: 100%;
+    padding: 18px 20px 10px;
+    text-align: center;
+    position: relative;
+  }
+
+  .header-deco {
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  #title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(18px, 5vw, 26px);
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,165,0,0.6), 0 0 40px rgba(255,165,0,0.3);
+    letter-spacing: 2px;
+    line-height: 1.2;
+  }
+
+  #subtitle {
+    font-size: 13px;
+    color: rgba(255,215,0,0.5);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* 기회 도트 */
+  #chances {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--gold-dark);
+    background: transparent;
+    transition: all 0.4s;
+    position: relative;
+  }
+  .dot.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 8px var(--gold), 0 0 16px rgba(255,165,0,0.5);
+  }
+  .dot.used {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+    opacity: 0.5;
+  }
+
+  /* ─── 가챠 머신 ─── */
+  #machine-wrap {
+    position: relative;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  #machine {
+    position: relative;
+    width: 180px;
+    transition: transform 0.05s;
+  }
+
+  .m-dome {
+    width: 180px; height: 105px;
+    background: linear-gradient(160deg, #CC0000 30%, #8B0000);
+    border-radius: 90px 90px 0 0;
+    border: 3px solid var(--gold);
+    border-bottom: none;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .m-dome::before {
+    content: '';
+    position: absolute; inset: 6px;
+    border-radius: 80px 80px 0 0;
+    background: rgba(255,255,255,0.07);
+    pointer-events: none;
+  }
+  .m-dome-inner {
+    width: 130px; height: 75px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 65px 65px 0 0;
+    border: 2px solid rgba(255,215,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 46px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* 돔 내부 반짝임 */
+  .m-dome-inner::after {
+    content: '';
+    position: absolute; top: 6px; left: 20px;
+    width: 40px; height: 30px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+    transform: rotate(-20deg);
+  }
+
+  .m-body {
+    width: 180px; height: 110px;
+    background: linear-gradient(180deg, #CC0000 0%, #9B0000);
+    border-left: 3px solid var(--gold);
+    border-right: 3px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    gap: 10px;
+  }
+  .m-screen {
+    width: 118px; height: 78px;
+    background: rgba(0,0,0,0.45);
+    border-radius: 8px;
+    border: 2px solid var(--gold);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.1);
+  }
+  .m-screen-title {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px var(--gold-glow);
+  }
+  .m-screen-sub {
+    font-size: 11px;
+    color: rgba(255,215,0,0.5);
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  .m-handle {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .m-handle-arm {
+    width: 9px; height: 42px;
+    background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark));
+    border-radius: 4px;
+  }
+  .m-handle-ball {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, var(--gold-light), var(--gold-dark));
+    border: 2px solid var(--gold-dark);
+    margin-top: -2px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+
+  .m-dispenser {
+    width: 180px; height: 34px;
+    background: linear-gradient(180deg, #7a0000, var(--red-dark));
+    border: 3px solid var(--gold);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .m-hole {
+    width: 72px; height: 16px;
+    background: #000;
+    border-radius: 8px;
+    border: 1px solid var(--gold-dark);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+  }
+
+  .m-stand {
+    width: 196px; height: 12px;
+    background: linear-gradient(180deg, var(--gold-dark), #7a5c00);
+    border-radius: 0 0 6px 6px;
+    margin-top: 1px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  }
+
+  /* 가챠 머신 흔들림 */
+  @keyframes machineShake {
+    0%,100% { transform: translateX(0) rotate(0deg); }
+    15% { transform: translateX(-8px) rotate(-2deg); }
+    30% { transform: translateX(8px) rotate(2deg); }
+    45% { transform: translateX(-6px) rotate(-1.5deg); }
+    60% { transform: translateX(6px) rotate(1.5deg); }
+    75% { transform: translateX(-4px) rotate(-1deg); }
+    90% { transform: translateX(4px) rotate(1deg); }
+  }
+  #machine.shaking { animation: machineShake 0.5s ease; }
+
+  /* ─── 알 영역 ─── */
+  #egg-zone {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    width: 100%;
+    min-height: 140px;
+  }
+
+  /* ─── 알 ─── */
+  #egg {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.1s;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+  }
+  #egg:active { transform: scale(0.94); }
+
+  .egg-shell {
+    width: 100px; height: 125px;
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 -4px 12px rgba(0,0,0,0.2);
+    transition: box-shadow 0.3s;
+  }
+  .egg-shell.normal {
+    background: radial-gradient(circle at 38% 32%, #FFFFF0 0%, #FFF5D6 40%, #F0DFA0 80%, #D4C070 100%);
+  }
+  .egg-shell.golden {
+    background: radial-gradient(circle at 38% 32%, #FFFDE0 0%, var(--gold) 40%, #D4A000 80%, #8B6900 100%);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 30px rgba(255,215,0,0.6), 0 0 60px rgba(255,165,0,0.3);
+    border: 2px solid var(--gold-light);
+  }
+  .egg-shine {
+    position: absolute; top: 14px; left: 22px;
+    width: 28px; height: 38px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    transform: rotate(-20deg);
+    pointer-events: none;
+  }
+  .egg-shine2 {
+    position: absolute; top: 18px; left: 40px;
+    width: 10px; height: 14px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    transform: rotate(-20deg);
+    pointer-events: none;
+  }
+  /* 황금알 글로우 펄스 */
+  @keyframes goldenPulse {
+    0%,100% { box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 25px rgba(255,215,0,0.5), 0 0 50px rgba(255,165,0,0.25); }
+    50% { box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 40px rgba(255,215,0,0.8), 0 0 80px rgba(255,165,0,0.4); }
+  }
+  .egg-shell.golden { animation: goldenPulse 1.4s ease-in-out infinite; }
+
+  .egg-label {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255,165,0,0.8);
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .egg-label.visible { opacity: 1; }
+
+  /* 알 등장 */
+  @keyframes eggDrop {
+    0% { transform: translateY(-100px) scale(0.5); opacity: 0; }
+    60% { transform: translateY(8px) scale(1.06); opacity: 1; }
+    80% { transform: translateY(-4px) scale(0.97); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  #egg.appear { animation: eggDrop 0.6s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+  /* 알 흔들기 */
+  @keyframes eggWiggle {
+    0%,100% { transform: rotate(0deg); }
+    20% { transform: rotate(-18deg) scale(1.05); }
+    40% { transform: rotate(18deg) scale(1.05); }
+    60% { transform: rotate(-12deg); }
+    80% { transform: rotate(12deg); }
+  }
+  #egg.wiggle { animation: eggWiggle 0.45s ease; }
+
+  /* 알 깨지기 */
+  @keyframes eggCrack {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.15) rotate(-8deg); }
+    50% { transform: scale(1.2) rotate(8deg); }
+    75% { transform: scale(0.9) rotate(-4deg); }
+    100% { transform: scale(0) rotate(20deg); opacity: 0; }
+  }
+  #egg.cracking { animation: eggCrack 0.5s ease-in forwards; }
+
+  /* ─── 안내 텍스트 ─── */
+  #guide {
+    text-align: center;
+    padding: 6px 20px 8px;
+    min-height: 60px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+  }
+
+  .guide-main {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.5px;
+  }
+  .guide-sub {
+    font-size: 12px;
+    color: var(--gray);
+  }
+
+  /* 금액 팝업 */
+  #amount-popup {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  #amount-popup.show { display: flex; }
+
+  .amount-badge {
+    padding: 14px 36px;
+    border-radius: 14px;
+    border-width: 3px;
+    border-style: solid;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .amount-badge.normal {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    border-color: var(--gold);
+    box-shadow: 0 4px 20px rgba(200,0,0,0.4);
+  }
+  .amount-badge.golden-badge {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    border-color: var(--gold-light);
+    box-shadow: 0 4px 30px rgba(255,215,0,0.6);
+  }
+  .amount-badge::before {
+    content: '';
+    position: absolute; top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: shimmer 2s 0.3s ease forwards;
+  }
+  .amount-badge.bang-badge {
+    background: linear-gradient(135deg, #333, #111);
+    border-color: #666;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .amount-num.bang { color: #aaa; font-size: 42px; }
+  .history-chip.bang-chip {
+    border-color: rgba(150,150,150,0.3);
+    background: rgba(150,150,150,0.07);
+    color: #888;
+  }
+  @keyframes shimmer { to { left: 200%; } }
+
+
+  .amount-label-sm {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .amount-label-sm.gold { color: var(--red-dark); }
+  .amount-num {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--white);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    line-height: 1;
+  }
+  .amount-num.gold { color: var(--red-dark); }
+
+  @keyframes popIn {
+    0% { transform: scale(0.3) translateY(20px); opacity: 0; }
+    60% { transform: scale(1.1) translateY(-4px); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .amount-badge.pop { animation: popIn 0.45s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+  /* ─── 히스토리 ─── */
+  #history {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 32px;
+  }
+
+  .history-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid rgba(255,215,0,0.3);
+    background: rgba(255,215,0,0.07);
+    color: rgba(255,215,0,0.7);
+    opacity: 0;
+    transform: translateY(10px);
+    animation: chipIn 0.35s forwards;
+  }
+  .history-chip.gold-chip {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.15);
+    color: var(--gold);
+    box-shadow: 0 0 8px rgba(255,215,0,0.3);
+  }
+  @keyframes chipIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── 최종 결과 오버레이 ─── */
+  #final {
+    position: fixed; inset: 0;
+    background: rgba(5, 1, 0, 0.97);
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: hidden;
+  }
+  #final.show { display: flex; }
+
+  /* 파티클 */
+  .particle {
+    position: absolute;
+    font-size: 20px;
+    pointer-events: none;
+    animation: particleFall 3s ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes particleFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(80vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* 메인 결과 카드 */
+  #result-card {
+    width: 100%; max-width: 380px;
+    background: linear-gradient(160deg, #1c0800 0%, #0D0500 60%, #1a0500 100%);
+    border: 2px solid var(--gold-dark);
+    border-radius: 24px;
+    padding: 28px 24px 24px;
+    position: relative;
+    z-index: 1;
+    box-shadow:
+      0 0 40px rgba(255,165,0,0.2),
+      0 0 80px rgba(255,100,0,0.1),
+      inset 0 1px 0 rgba(255,215,0,0.2);
+    animation: cardReveal 0.6s cubic-bezier(.34,1.56,.64,1) forwards;
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  @keyframes cardReveal {
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* 카드 코너 장식 */
+  #result-card::before, #result-card::after {
+    content: '✦';
+    position: absolute;
+    color: var(--gold-dark);
+    font-size: 12px;
+    opacity: 0.6;
+  }
+  #result-card::before { top: 12px; left: 16px; }
+  #result-card::after { bottom: 12px; right: 16px; }
+
+  .winner-line1 {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(26px, 7vw, 36px);
+    font-weight: 900;
+    color: var(--gold);
+    text-align: center;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255,165,0,0.7), 0 0 40px rgba(255,100,0,0.4);
+    animation: textGlow 1.5s ease-in-out infinite alternate;
+  }
+  .winner-line2 {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(16px, 4vw, 22px);
+    font-weight: 700;
+    color: rgba(255,215,0,0.7);
+    text-align: center;
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  @keyframes textGlow {
+    from { text-shadow: 0 0 15px rgba(255,165,0,0.5), 0 0 30px rgba(255,100,0,0.3); }
+    to   { text-shadow: 0 0 30px rgba(255,165,0,0.9), 0 0 60px rgba(255,100,0,0.5); }
+  }
+
+  .result-divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+    margin: 16px 0;
+  }
+
+  .result-rows { width: 100%; }
+  .result-row {
+    display: flex; justify-content: space-between;
+    align-items: center;
+    padding: 7px 4px;
+    border-bottom: 1px solid rgba(255,215,0,0.07);
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  .result-row.slide-in {
+    animation: rowSlide 0.35s forwards;
+  }
+  @keyframes rowSlide { to { opacity: 1; transform: translateX(0); } }
+  .row-num { font-size: 14px; color: var(--gray); }
+  .row-amt { font-size: 17px; font-weight: 700; color: var(--white); }
+  .row-amt.gold { color: var(--gold); }
+
+  .total-wrap {
+    text-align: center;
+    margin-top: 16px;
+  }
+  .total-label-sm {
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .total-num {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(38px, 11vw, 56px);
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 24px rgba(255,215,0,0.7), 0 0 48px rgba(255,165,0,0.4);
+    animation: textGlow 1.2s ease-in-out infinite alternate;
+    line-height: 1;
+  }
+
+  .emoji-row {
+    font-size: 30px;
+    text-align: center;
+    margin: 14px 0 6px;
+    letter-spacing: 6px;
+  }
+
+  #restart-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    border: 2px solid var(--gold);
+    border-radius: 40px;
+    color: var(--white);
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 16px rgba(200,0,0,0.4), 0 0 20px rgba(255,215,0,0.1);
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #restart-btn:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 8px rgba(200,0,0,0.4);
+  }
+
+  /* 흔들기 힌트 애니메이션 */
+  @keyframes hintPulse {
+    0%,100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.03); }
+  }
+  .shake-hint { animation: hintPulse 1.8s ease-in-out infinite; }
+
+  /* 모바일 크기 조정 */
+  @media (max-height: 700px) {
+    #header { padding: 10px 20px 6px; }
+    .m-dome { height: 90px; }
+    .m-body { height: 95px; }
+    #egg-zone { min-height: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 배경 장식 -->
+<div class="bg-ornament">🐉</div>
+<div class="bg-ornament">🧧</div>
+<div class="bg-ornament">✦</div>
+
+<div id="app">
+
+  <!-- 헤더 -->
+  <div id="header">
+    <div class="header-deco">✦ NEW YEAR LUCKY GACHA ✦</div>
+    <div id="title">세뱃돈 가챠</div>
+    <div id="subtitle">🧧 새해 복 많이 받으세요 🧧</div>
+    <div id="chances">
+      <div class="dot active" id="dot-0"></div>
+      <div class="dot" id="dot-1"></div>
+      <div class="dot" id="dot-2"></div>
+    </div>
+  </div>
+
+  <!-- 가챠 머신 -->
+  <div id="machine-wrap">
+    <div id="machine">
+      <div class="m-dome">
+        <div class="m-dome-inner">🎰</div>
+      </div>
+      <div class="m-body">
+        <div class="m-screen">
+          <div class="m-screen-title">GACHA</div>
+          <div class="m-screen-sub">세  뱃  돈</div>
+        </div>
+        <div class="m-handle">
+          <div class="m-handle-arm"></div>
+          <div class="m-handle-ball"></div>
+        </div>
+      </div>
+      <div class="m-dispenser">
+        <div class="m-hole"></div>
+      </div>
+      <div class="m-stand"></div>
+    </div>
+  </div>
+
+  <!-- 알 -->
+  <div id="egg-zone">
+    <div id="egg">
+      <div class="egg-shell normal" id="egg-shell">
+        <div class="egg-shine"></div>
+        <div class="egg-shine2"></div>
+      </div>
+      <div class="egg-label" id="egg-label">✨ 황금알 ✨</div>
+    </div>
+  </div>
+
+  <!-- 안내 + 금액 -->
+  <div id="guide">
+    <div id="guide-text">
+      <div class="guide-main shake-hint" id="guide-main">🫙 통을 흔들어주세요!</div>
+      <div class="guide-sub" id="guide-sub">통에서 알이 나옵니다</div>
+    </div>
+    <div id="amount-popup">
+      <div class="amount-badge" id="amount-badge">
+        <div class="amount-label-sm" id="amount-label-sm">이번 회차</div>
+        <div class="amount-num" id="amount-num">0원</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 히스토리 -->
+  <div id="history"></div>
+
+</div>
+
+<!-- 최종 결과 -->
+<div id="final">
+  <div id="result-card">
+    <div class="winner-line1">WINNER</div>
+    <div class="winner-line2">TAKES IT ALL</div>
+    <div class="result-divider"></div>
+    <div class="result-rows" id="result-rows"></div>
+    <div class="result-divider"></div>
+    <div class="total-wrap">
+      <div class="total-label-sm">✦ 총 상금 ✦</div>
+      <div class="total-num" id="total-num">0원</div>
+    </div>
+    <div class="emoji-row">🧧&nbsp;&nbsp;🎉&nbsp;&nbsp;🧧</div>
+    <button id="restart-btn" onclick="restart()">🔄 다시 하기</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// ⚙️ 설정 - 여기서 모든 걸 바꿀 수 있어요!
+// ══════════════════════════════════════
+const CONFIG = {
+  TOTAL_TURNS: 3,            // 총 기회 횟수
+  SHAKE_THRESHOLD: 12,       // 흔들기 민감도 (낮을수록 예민, 기본 12)
+  NEXT_DELAY: 1700,          // 다음 턴까지 대기시간 (ms)
+
+  // 확률 구간 설정
+  // prob 합계 = 1.0 (100%)
+  // 꽝은 amount: 0 으로 처리
+  TIERS: [
+    { label: '꽝',              prob: 0.30, min: 0,     max: 0,      step: 1,    golden: false },  // 30%
+    { label: '3만원 이하',       prob: 0.20, min: 1000,  max: 30000,  step: 1000, golden: false },  // 20%
+    { label: '3만~5만원',        prob: 0.40, min: 31000, max: 50000,  step: 1000, golden: false },  // 40%
+    { label: '5만~7만원',        prob: 0.08, min: 51000, max: 70000,  step: 1000, golden: false },  // 8%
+    { label: '7만~10만원',       prob: 0.02, min: 71000, max: 100000, step: 1000, golden: true  },  // 2%
+  ],
+};
+// ══════════════════════════════════════
+
+// 게임 상태
+let turn = 0;
+let phase = 'idle'; // idle | egg | cracked | done
+let results = [];
+let lastAccel = { x: 0, y: 0, z: 0 };
+let shakeEnabled = true;
+
+// DOM
+const $machine = document.getElementById('machine');
+const $egg = document.getElementById('egg');
+const $eggShell = document.getElementById('egg-shell');
+const $eggLabel = document.getElementById('egg-label');
+const $guideMain = document.getElementById('guide-main');
+const $guideSub = document.getElementById('guide-sub');
+const $guideText = document.getElementById('guide-text');
+const $amountPopup = document.getElementById('amount-popup');
+const $amountBadge = document.getElementById('amount-badge');
+const $amountNum = document.getElementById('amount-num');
+const $amountLabelSm = document.getElementById('amount-label-sm');
+const $history = document.getElementById('history');
+const $final = document.getElementById('final');
+const $resultRows = document.getElementById('result-rows');
+const $totalNum = document.getElementById('total-num');
+
+// ── 금액 생성 (티어 기반) ──
+function genAmount() {
+  const rand = Math.random();
+  let cumul = 0;
+  for (const tier of CONFIG.TIERS) {
+    cumul += tier.prob;
+    if (rand < cumul) {
+      if (tier.min === 0) return { amount: 0, golden: false }; // 꽝
+      const steps = Math.floor((tier.max - tier.min) / tier.step);
+      const amount = tier.min + Math.floor(Math.random() * (steps + 1)) * tier.step;
+      return { amount, golden: tier.golden };
+    }
+  }
+  return { amount: 1000, golden: false };
+}
+
+// ── 금액 포맷 ──
+function fmt(n) {
+  if (n >= 10000) {
+    const man = Math.floor(n / 10000);
+    const rest = n % 10000;
+    return rest === 0 ? `${man}만원` : `${man}만 ${rest.toLocaleString('ko-KR')}원`;
+  }
+  return `${n.toLocaleString('ko-KR')}원`;
+}
+
+// ── 도트 업데이트 ──
+function updateDots() {
+  for (let i = 0; i < CONFIG.TOTAL_TURNS; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    if (!dot) return;
+    dot.className = 'dot';
+    if (i < turn) dot.classList.add('used');
+    else if (i === turn && phase !== 'idle') dot.classList.add('active');
+    else if (i === turn) dot.classList.add('active');
+  }
+}
+
+// ── 흔들기 처리 ──
+function onShake() {
+  if (phase !== 'idle' || !shakeEnabled || turn >= CONFIG.TOTAL_TURNS) return;
+  shakeEnabled = false;
+
+  // 머신 흔들기
+  $machine.classList.remove('shaking');
+  void $machine.offsetWidth;
+  $machine.classList.add('shaking');
+
+  // 알 생성
+  setTimeout(() => {
+    const { amount, golden } = genAmount();
+    dropEgg(amount, golden);
+  }, 300);
+}
+
+// ── 알 등장 ──
+function dropEgg(amount, golden) {
+  phase = 'egg';
+  updateDots();
+
+  const isBang = amount === 0;
+  $eggShell.className = 'egg-shell ' + (golden ? 'golden' : 'normal');
+  $eggLabel.className = 'egg-label' + (golden ? ' visible' : '');
+  $egg.dataset.amount = amount;
+  $egg.dataset.golden = golden;
+  $egg.dataset.bang = isBang;
+
+  $egg.style.display = 'flex';
+  $egg.classList.remove('appear', 'wiggle', 'cracking');
+  void $egg.offsetWidth;
+  $egg.classList.add('appear');
+
+  $guideText.style.display = 'flex';
+  $amountPopup.classList.remove('show');
+  $guideMain.textContent = '🥚 알을 터치하세요!';
+  $guideMain.classList.remove('shake-hint');
+  $guideSub.textContent = golden ? '✨ 특별한 알이 나왔어요!' : '어떤 금액이 나올까요?';
+
+  if (golden) {
+    setTimeout(() => {
+      $egg.classList.remove('wiggle');
+      void $egg.offsetWidth;
+      $egg.classList.add('wiggle');
+    }, 700);
+  }
+}
+
+// ── 알 터치 ──
+$egg.addEventListener('click', crackEgg);
+$egg.addEventListener('touchstart', (e) => { e.preventDefault(); crackEgg(); }, { passive: false });
+
+function crackEgg() {
+  if (phase !== 'egg') return;
+  phase = 'cracked';
+
+  const amount = parseInt($egg.dataset.amount);
+  const golden = $egg.dataset.golden === 'true';
+
+  // 깨지는 애니메이션
+  $egg.classList.remove('wiggle', 'appear');
+  void $egg.offsetWidth;
+  $egg.classList.add('cracking');
+
+  // 금액 표시
+  setTimeout(() => {
+    $egg.style.display = 'none';
+    showAmount(amount, golden);
+    addHistory(amount, golden, turn);
+    results.push({ amount, golden });
+    turn++;
+    updateDots();
+
+    // 진동 (지원 시)
+    if (navigator.vibrate) navigator.vibrate(golden ? [80, 40, 120] : [60]);
+
+    // 다음 단계
+    setTimeout(() => {
+      if (turn >= CONFIG.TOTAL_TURNS) {
+        showFinal();
+      } else {
+        resetForNext();
+      }
+    }, CONFIG.NEXT_DELAY);
+  }, 350);
+}
+
+// ── 금액 팝업 ──
+function showAmount(amount, golden) {
+  $guideText.style.display = 'none';
+  $amountPopup.classList.add('show');
+
+  const isBang = amount === 0;
+  $amountBadge.className = 'amount-badge ' + (golden ? 'golden-badge' : isBang ? 'bang-badge' : 'normal');
+  $amountLabelSm.className = 'amount-label-sm' + (golden ? ' gold' : '');
+  $amountNum.className = 'amount-num' + (golden ? ' gold' : isBang ? ' bang' : '');
+  $amountLabelSm.textContent = golden ? '✨ 황금알 대박! ✨' : isBang ? '😢 이번엔 꽝!' : `${turn + 1}회차`;
+  $amountNum.textContent = isBang ? '꽝!' : fmt(amount);
+
+  void $amountBadge.offsetWidth;
+  $amountBadge.classList.add('pop');
+}
+
+// ── 히스토리 칩 ──
+function addHistory(amount, golden, idx) {
+  const isBang = amount === 0;
+  const chip = document.createElement('div');
+  chip.className = 'history-chip' + (golden ? ' gold-chip' : isBang ? ' bang-chip' : '');
+  chip.textContent = isBang ? `${idx + 1}회 꽝 😢` : `${idx + 1}회 ${fmt(amount)}${golden ? ' ✨' : ''}`;
+  chip.style.animationDelay = '0.1s';
+  $history.appendChild(chip);
+}
+
+// ── 다음 턴 초기화 ──
+function resetForNext() {
+  phase = 'idle';
+  shakeEnabled = true;
+  $amountPopup.classList.remove('show');
+  $guideText.style.display = 'flex';
+  $guideMain.textContent = '🫙 통을 흔들어주세요!';
+  $guideMain.classList.add('shake-hint');
+  $guideSub.textContent = `남은 기회: ${CONFIG.TOTAL_TURNS - turn}번`;
+  updateDots();
+}
+
+// ── 최종 결과 ──
+function showFinal() {
+  // 파티클 생성
+  const emojis = ['✨','🎊','🧧','💰','🎉','⭐','🌟','💫'];
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emojis[i % emojis.length];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDelay = (Math.random() * 2) + 's';
+    p.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+    p.style.fontSize = (14 + Math.random() * 18) + 'px';
+    $final.appendChild(p);
+  }
+
+  // 결과 행
+  $resultRows.innerHTML = '';
+  results.forEach((r, i) => {
+    const isBang = r.amount === 0;
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML = `<span class="row-num">${i + 1}회차</span><span class="row-amt${r.golden ? ' gold' : isBang ? ' bang' : ''}">${isBang ? '꽝 😢' : fmt(r.amount) + (r.golden ? ' ✨' : '')}</span>`;
+    $resultRows.appendChild(row);
+    setTimeout(() => row.classList.add('slide-in'), 700 + i * 150);
+  });
+
+  const total = results.reduce((s, r) => s + r.amount, 0);
+  $totalNum.textContent = fmt(total);
+
+  $final.classList.add('show');
+
+  if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+}
+
+// ── 재시작 ──
+function restart() {
+  turn = 0;
+  phase = 'idle';
+  results = [];
+  shakeEnabled = true;
+
+  $history.innerHTML = '';
+  $egg.style.display = 'none';
+  $egg.className = '';
+  $amountPopup.classList.remove('show');
+  $guideText.style.display = 'flex';
+  $guideMain.textContent = '🫙 통을 흔들어주세요!';
+  $guideMain.classList.add('shake-hint');
+  $guideSub.textContent = '통에서 알이 나옵니다';
+
+  // 파티클 제거
+  document.querySelectorAll('.particle').forEach(p => p.remove());
+  $final.classList.remove('show');
+
+  updateDots();
+}
+
+// ══════════════════════════════════════
+// 📱 흔들기 감지 (DeviceMotion API)
+// ══════════════════════════════════════
+let motionListening = false;
+
+function listenMotion() {
+  if (motionListening) return;
+  motionListening = true;
+  window.addEventListener('devicemotion', (e) => {
+    if (phase !== 'idle' || !shakeEnabled) return;
+    const acc = e.accelerationIncludingGravity;
+    if (!acc) return;
+    const dx = Math.abs(acc.x - lastAccel.x);
+    const dy = Math.abs(acc.y - lastAccel.y);
+    const dz = Math.abs(acc.z - lastAccel.z);
+    if (dx + dy + dz > CONFIG.SHAKE_THRESHOLD) onShake();
+    lastAccel = { x: acc.x, y: acc.y, z: acc.z };
+  }, { passive: true });
+}
+
+function setupShake() {
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    // iOS 13+ - 화면 터치 시 권한 요청 (단 한 번)
+    // 단, 터치가 알 클릭과 겹치지 않도록 idle 상태에서만 시도
+    const requestOnce = async () => {
+      try {
+        const perm = await DeviceMotionEvent.requestPermission();
+        if (perm === 'granted') listenMotion();
+      } catch(e) {
+        // 권한 거부 또는 실패 - 머신 탭 유도
+      }
+    };
+    // 머신 탭 or 화면 첫 탭에서 요청
+    $machine.addEventListener('click', () => { requestOnce(); onShake(); }, { once: true });
+    document.addEventListener('touchend', requestOnce, { once: true });
+  } else {
+    // Android / 데스크탑
+    listenMotion();
+  }
+}
+
+setupShake();
+
+// 개발/데스크탑 테스트용: 스페이스바로 흔들기 시뮬레이션
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); onShake(); }
+  if (e.code === 'Enter' && phase === 'egg') crackEgg();
+});
+
+// 데스크탑에서 머신 클릭해도 흔들기 (Android/데스크탑 전용)
+if (!(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function')) {
+  $machine.addEventListener('click', onShake);
+}
+
+// 초기 도트 설정
+updateDots();
+</script>
+</body>
+</html>
